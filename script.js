@@ -1,51 +1,37 @@
-// --- Message Toggle Plugin JavaScript (with localStorage Persistence - v1.1 User ch_name) ---
+// --- Message Toggle Plugin JavaScript (v1.3 - Dual Buttons, localStorage, No Animation) ---
 (function() {
-    console.log("你好，带 localStorage 持久化存储的消息折叠插件脚本开始运行了！(v1.1 使用用户 ch_name)");
+    console.log("你好，带 localStorage 持久化存储和双按钮的消息折叠插件脚本开始运行了！(v1.3)");
 
     // --- 配置区域 ---
     const messageContainerSelector = '#chat';
     const messageSelector = '.mes';
     const messageContentSelector = '.mes_text';
     const messageIdAttribute = 'mesid';
-    const characterNameAttribute = 'ch_name'; // 对用户和角色都用这个属性获取名字
-    const isUserAttribute = 'is_user';
-    // const userIdentifier = 'user'; // 不再需要固定的 userIdentifier 了
+    const characterNameAttribute = 'ch_name';
+    // const isUserAttribute = 'is_user'; // 不再直接需要is_user判断，统一用ch_name
     const storagePrefix = 'sillytavern_msg_toggle_';
     // --- 配置区域结束 ---
 
-    // 函数：获取用于 localStorage 的唯一存储键 (现在对用户也用 ch_name)
+    // 函数：获取用于 localStorage 的唯一存储键 (和 v1.1 一样)
     function getStorageKey(messageElement) {
         const messageId = messageElement.getAttribute(messageIdAttribute);
-        if (!messageId) {
-            return null; // 必须有消息ID
-        }
+        if (!messageId) { return null; }
 
-        let chatIdentifier = '';
-        // 统一尝试获取 ch_name 属性
-        chatIdentifier = messageElement.getAttribute(characterNameAttribute);
-
+        let chatIdentifier = messageElement.getAttribute(characterNameAttribute);
         if (!chatIdentifier) {
-            // 如果该消息（无论是用户还是角色）竟然没有 ch_name 属性
-            const isUser = messageElement.getAttribute(isUserAttribute) === 'true';
-            if (isUser) {
-                console.warn("User message lacks 'ch_name' attribute, falling back to 'user_fallback'.", messageElement);
-                chatIdentifier = 'user_fallback'; // 提供一个备用标识
-            } else {
-                console.warn("Character message lacks 'ch_name' attribute, falling back to 'unknown_character'.", messageElement);
-                chatIdentifier = 'unknown_character'; // 角色备用标识
-            }
+            // 备用逻辑：如果ch_name丢失，尝试用is_user区分
+            const isUser = messageElement.getAttribute('is_user') === 'true';
+            chatIdentifier = isUser ? 'user_fallback' : 'unknown_character_fallback';
+            console.warn(`Message ${messageId} lacks 'ch_name', using fallback ID: ${chatIdentifier}`);
         }
-
-        // 对获取到的标识符（用户名或角色名）进行清理，移除可能影响存储键的特殊字符
-        // 允许字母(包括中文等Unicode字符 \p{L})、数字、下划线、连字符
+        // 清理标识符
         chatIdentifier = chatIdentifier.replace(/[^\p{L}\p{N}_\-]/gu, '_');
-
-        // 最终的存储键: 前缀 + 聊天标识(角色名或用户名) + 消息ID
         return `${storagePrefix}${chatIdentifier}_${messageId}`;
     }
 
-    // 函数：为单个消息元素添加切换按钮，并处理持久化状态 (这部分代码和上一版一样)
-    function addToggleButton(messageElement) {
+    // 函数：为单个消息元素添加 *两个* 切换按钮
+    function addToggleButtons(messageElement) {
+        // 检查是否已存在按钮（检查任意一个即可）
         if (messageElement.querySelector('.message-toggle-button')) {
             return;
         }
@@ -55,47 +41,67 @@
         }
 
         const storageKey = getStorageKey(messageElement);
-        // 为了简单起见，如果无法为某条消息生成存储键（比如缺少必要属性），
-        // 我们就不给它添加折叠按钮，因为它无法被持久化。
         if (!storageKey) {
-             console.warn("Could not generate storage key for message, toggle button skipped:", messageElement);
-             return;
+            console.warn("Could not generate storage key for message, toggle buttons skipped:", messageElement);
+            return; // 没有存储键，不添加按钮
         }
 
-        const button = document.createElement('button');
-        button.className = 'message-toggle-button';
+        // --- 创建两个按钮 ---
+        const buttonStart = document.createElement('button');
+        buttonStart.className = 'message-toggle-button message-toggle-button-start'; // 基础类 + 定位类
 
+        const buttonEnd = document.createElement('button');
+        buttonEnd.className = 'message-toggle-button message-toggle-button-end'; // 基础类 + 定位类
+
+        // --- 加载持久化状态 ---
         let isInitiallyCollapsed = false;
         if (localStorage.getItem(storageKey) === 'true') {
-             isInitiallyCollapsed = true;
-             contentElement.classList.add('collapsed');
-             button.classList.add('collapsed');
+            isInitiallyCollapsed = true;
+            contentElement.classList.add('collapsed');
+            // 同步两个按钮的初始状态
+            buttonStart.classList.add('collapsed');
+            buttonEnd.classList.add('collapsed');
         }
 
-        button.addEventListener('click', function() {
+        // --- 定义通用的点击处理函数 ---
+        const handleClick = function() {
+            // 切换内容元素的 collapsed 类，并获取当前是否折叠
             const isNowCollapsed = contentElement.classList.toggle('collapsed');
-            button.classList.toggle('collapsed');
 
+            // 同步两个按钮的 collapsed 类
+            // classList.toggle(className, force) 可以强制添加或移除
+            buttonStart.classList.toggle('collapsed', isNowCollapsed);
+            buttonEnd.classList.toggle('collapsed', isNowCollapsed);
+
+            // --- 保存持久化状态 ---
             if (isNowCollapsed) {
                 localStorage.setItem(storageKey, 'true');
             } else {
                 localStorage.removeItem(storageKey);
             }
-        });
+        };
 
-        messageElement.appendChild(button);
+        // --- 为两个按钮绑定同一个点击事件处理器 ---
+        buttonStart.addEventListener('click', handleClick);
+        buttonEnd.addEventListener('click', handleClick);
+
+        // --- 将两个按钮添加到消息元素中 ---
+        messageElement.appendChild(buttonStart);
+        messageElement.appendChild(buttonEnd);
     }
 
-    // 函数：处理聊天区域的新增消息 (和之前一样)
+    // 函数：处理聊天区域的新增消息 (MutationObserver回调)
+    // (这里调用 addToggleButtons 而不是 addToggleButton)
     function handleNewMessages(mutationsList) {
         for (const mutation of mutationsList) {
             if (mutation.type === 'childList') {
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === Node.ELEMENT_NODE) {
                          if (node.matches(messageSelector)) {
-                            addToggleButton(node);
+                            addToggleButtons(node); // 调用新函数
                         } else {
-                            node.querySelectorAll(messageSelector).forEach(addToggleButton);
+                            // 检查子元素
+                            node.querySelectorAll(messageSelector).forEach(addToggleButtons); // 调用新函数
                         }
                     }
                 });
@@ -103,23 +109,26 @@
         }
     }
 
-    // 插件初始化函数 (和之前一样)
+    // 插件初始化函数
+    // (这里调用 addToggleButtons 而不是 addToggleButton)
     function initialize() {
         const observerTarget = document.querySelector(messageContainerSelector);
         if (observerTarget) {
-            console.log("Message Toggle: Found chat container:", messageContainerSelector);
-            observerTarget.querySelectorAll(messageSelector).forEach(addToggleButton);
+            console.log("Message Toggle (Dual Buttons): Found chat container:", messageContainerSelector);
+            // 初始化时为已存在的消息添加按钮
+            observerTarget.querySelectorAll(messageSelector).forEach(addToggleButtons); // 调用新函数
+
             const observer = new MutationObserver(handleNewMessages);
             const config = { childList: true, subtree: true };
             observer.observe(observerTarget, config);
-            console.log("Message Toggle Observer Started.");
+            console.log("Message Toggle (Dual Buttons) Observer Started.");
         } else {
             console.error("Message Toggle Plugin: Could not find chat container:", messageContainerSelector, ". Retrying in 1 second...");
             setTimeout(initialize, 1000);
         }
     }
 
-    // DOM 加载完成后初始化 (和之前一样)
+    // DOM 加载完成后初始化
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initialize);
     } else {
