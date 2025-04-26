@@ -1,61 +1,56 @@
-/* --- Message Toggle Plugin CSS --- */
+/* --- Message Toggle Plugin CSS (v1.2 - No Max-Height, No Animation) --- */
 
-/* 为每条消息容器增加相对定位，以便按钮绝对定位 */
-.mes { /* 假设 '.mes' 是每条消息外层容器的类名，如果不是，请修改 */
+/* (其他样式，如 .mes, .message-toggle-button 等保持不变) */
+.mes {
     position: relative;
-    padding-left: 25px; /* 给按钮留出空间 */
+    padding-left: 25px;
 }
 
-/* 折叠按钮的样式 */
 .message-toggle-button {
     position: absolute;
-    left: 5px; /* 按钮距离消息左边缘的距离 */
-    top: 5px;  /* 按钮距离消息上边缘的距离 */
+    left: 5px;
+    top: 5px;
     width: 16px;
     height: 16px;
     cursor: pointer;
     border: none;
     background-color: transparent;
     padding: 0;
-    font-size: 12px; /* 可以调整三角大小 */
-    line-height: 16px; /* 垂直居中 */
+    font-size: 12px;
+    line-height: 16px;
     text-align: center;
-    color: #888; /* 按钮颜色 */
-    transition: transform 0.2s ease; /* 平滑旋转动画 */
+    color: #888;
+    transition: transform 0.2s ease; /* 只保留按钮图标旋转的动画 */
+    z-index: 1;
 }
 
-/* 展开状态下的三角 (默认) */
 .message-toggle-button::before {
-    content: '▼'; /* 向下的实心三角 */
+    content: '▼';
 }
 
-/* 折叠状态下的按钮样式 */
 .message-toggle-button.collapsed::before {
-    content: '▶'; /* 向右的实心三角 */
-    /* 或者 transform: rotate(-90deg); 如果用背景图或伪元素画三角 */
+    content: '▶';
 }
 
-/* 消息内容的容器 - 需要找到实际的类名 */
-/* 假设 '.mes_text' 是包含消息文本的元素类名 */
+/* 消息内容的容器 - 基础样式 */
+/* !! 修改点：完全移除了 max-height 和 overflow，也移除了 transition !! */
 .mes .mes_text {
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out; /* 平滑折叠动画 */
-    max-height: 1000px; /* 一个足够大的值，确保能完全显示 */
-    overflow: hidden;
+    /* 不再需要 transition，因为没有高度动画了 */
+    /* transition: opacity 0.3s ease-out; */ /* 可以只保留透明度动画，如果需要 */
     opacity: 1;
-    margin-top: 0; /* 确保折叠时无额外间距 */
+    margin-top: 0;
+    overflow: visible; /* 确保默认可见 */
 }
 
 /* 消息内容折叠时的样式 */
+/* !! 修改点：使用 display: none 来隐藏，而不是 max-height !! */
 .mes .mes_text.collapsed {
-    max-height: 0;
-    opacity: 0;
-    /* 可以加个负margin让上下消息靠拢，但可能复杂 */
-    /* margin-top: -10px; */
-    /* 或者直接隐藏，但没有动画 */
-    /* display: none; */
+    display: none; /* 直接隐藏，不占空间，但无动画 */
+    /* 或者，如果想保留一点渐隐效果（但仍然是瞬间折叠） */
+    /* opacity: 0; */
+    /* visibility: hidden; */
 }
 
-/* 鼠标悬停在按钮上时改变颜色（可选） */
 .message-toggle-button:hover {
     color: #555;
 }
