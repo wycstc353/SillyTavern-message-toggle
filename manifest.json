@@ -1,0 +1,8 @@
+{
+  "name": "Message Toggle",
+  "version": "1.0",
+  "manifest_version": 1,
+  "description": "Adds a button to toggle (collapse/expand) message content.",
+  "script": "script.js",
+  "style": "style.css"
+}
