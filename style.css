@@ -68,3 +68,152 @@
 .message-toggle-button:hover {
     color: #555;
 }
+
+/* --- Settings Panel Styles --- */
+
+#message-toggle-settings-panel {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    z-index: 1000; /* Ensure it's above other content */
+    font-family: sans-serif;
+    max-height: 80vh; /* Limit height and allow scrolling */
+    overflow-y: auto; /* Enable vertical scrolling if content overflows */
+}
+
+#message-toggle-settings-panel h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #555;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+#message-toggle-settings-panel .settings-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+#message-toggle-settings-panel .settings-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+
+#message-toggle-settings-panel label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#message-toggle-settings-panel input[type="text"],
+#message-toggle-settings-panel input[type="number"] {
+    width: calc(100% - 12px); /* Adjust for padding */
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Include padding in width */
+}
+#message-toggle-settings-panel input[type="checkbox"] {
+     margin-right: 5px;
+     vertical-align: middle;
+}
+
+
+#message-toggle-settings-panel .input-group {
+    display: flex;
+    gap: 10px; /* Space between elements */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 10px;
+}
+#message-toggle-settings-panel .input-group input[type="number"] {
+     width: 70px; /* Smaller width for range inputs */
+     margin-bottom: 0; /* Remove bottom margin when in group */
+}
+
+
+#message-toggle-settings-panel button {
+    padding: 8px 15px;
+    background-color: #6c757d; /* Bootstrap secondary color */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-right: 5px;
+    margin-top: 5px; /* Add some top margin */
+}
+
+#message-toggle-settings-panel button:hover {
+    background-color: #5a6268;
+}
+
+#message-toggle-settings-panel .close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #aaa;
+    cursor: pointer;
+}
+#message-toggle-settings-panel .close-button:hover {
+     color: #777;
+}
+
+
+
+
+/* Helper text style */
+.settings-note {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+/* --- Permanent Settings Button Style --- */
+#permanent-settings-button {
+    position: fixed;
+    /* 定位在右侧中间偏上一点 */
+    top: 30%;
+    right: 0;
+    transform: translateY(-50%); /* 垂直居中 */
+    writing-mode: vertical-rl; /* 文字竖排 */
+    text-orientation: mixed; /* 控制竖排文字方向 */
+    background-color: #6c757d; /* 灰色背景 */
+    color: white;
+    padding: 10px 5px; /* 上下内边距大，左右小 */
+    border: none;
+    border-top-left-radius: 5px; /* 左上圆角 */
+    border-bottom-left-radius: 5px; /* 左下圆角 */
+    cursor: pointer;
+    z-index: 999; /* 确保在聊天内容之上，但在设置面板之下 */
+    box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.2);
+    font-size: 14px; /* 调整字体大小 */
+    transition: background-color 0.2s ease;
+}
+
+#permanent-settings-button:hover {
+    background-color: #5a6268;
+}
+
+/* 确保图标和文字在一起（如果未来加图标） */
+#permanent-settings-button i {
+     display: block; /* 让图标单独一行 */
+     margin-bottom: 5px; /* 图标和文字间距 */
+}
